@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnapFlow | Pro Workspace Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0D0D0D;
+      --bg-secondary: #141414;
+      --sidebar: #111111;
+      --surface: #1A1A1A;
+      --surface-hover: rgba(255,255,255,0.05);
+      --border: #2A2A2A;
+      --text-main: #FFFFFF;
+      --text-secondary: #A1A1A1;
+      --text-muted: #6B6B6B;
+      --primary: #FF6A00;
+      --primary-hover: #FF7A1A;
+      --primary-gradient: linear-gradient(135deg, #FF6A00, #FF8C42);
+      --primary-glow-soft: rgba(255,106,0,0.25);
+      --primary-glow-strong: rgba(255,106,0,0.4);
+      --success: #10B981;
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --radius: 16px;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --shadow-card: 0 10px 30px rgba(0,0,0,0.4);
+      --shadow-soft: 0 6px 20px rgba(0,0,0,0.28);
+      --shadow-button: 0 4px 20px rgba(255,106,0,0.4);
+    }
+
+    [data-theme="light"] {
+      --bg-main: #F9FAFB;
+      --bg-secondary: #FFFFFF;
+      --sidebar: #FFFFFF;
+      --surface: #FFFFFF;
+      --surface-hover: #F3F4F6;
+      --border: #E5E7EB;
+      --text-main: #111827;
+      --text-secondary: #4B5563;
+      --text-muted: #9CA3AF;
+      --primary: #FF6A00;
+      --primary-hover: #E65C00;
+      --primary-gradient: linear-gradient(135deg, #FF6A00, #FF8C42);
+      --primary-glow-soft: rgba(255,106,0,0.15);
+      --primary-glow-strong: rgba(255,106,0,0.24);
+      --shadow-card: 0 5px 20px rgba(0,0,0,0.05);
+      --shadow-soft: 0 5px 18px rgba(17,24,39,0.08);
+      --shadow-button: 0 5px 18px rgba(230,92,0,0.22);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main); 
+      height: 100vh; 
+      overflow: hidden; 
+      transition: var(--transition);
+    }
+
+    .app-container { display: flex; height: 100vh; }
+
+    /* --- Sidebar --- */
+    .sidebar {
+      width: 280px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1.25rem;
+      transition: var(--transition);
+    }
+
+    .brand { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2.5rem; }
+    .brand-logo {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      display: grid; place-items: center;
+      background: #111;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      transition: var(--transition);
+    }
+    [data-theme="light"] .brand-logo { background: #fff; }
+    .brand-name { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; }
+
+    .health-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .health-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+    
+    .cpu-bar { height: 6px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 0.4rem; }
+    .cpu-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.5s ease; border-radius: 10px; }
+    .cpu-val { font-size: 0.85rem; font-weight: 600; text-align: right; }
+
+    .nav-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin: 1rem 0 0.75rem 0.5rem; }
+    
+    .workspace-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-right: 4px; }
+    .workspace-list::-webkit-scrollbar { width: 4px; }
+    .workspace-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+    .ws-btn {
+      position: relative;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: var(--transition);
+      display: flex; align-items: center; gap: 0.75rem;
+      border: 1px solid transparent;
+    }
+    .ws-btn:hover { background: var(--surface-hover); color: var(--text-main); }
+    .ws-btn.active {
+      color: var(--text-main);
+      background: rgba(255,106,0,0.1);
+      border-left: 3px solid var(--primary);
+      border-color: rgba(255,106,0,0.2);
+    }
+
+    .sidebar-footer { padding-top: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; align-items: center; }
+    .theme-toggle {
+      width: 58px; height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 3px;
+      transition: var(--transition);
+      color: var(--text-secondary);
+      position: relative;
+    }
+    .theme-toggle:hover { border-color: var(--primary); color: var(--primary); box-shadow: 0 0 0 2px var(--primary-glow-soft); }
+    .toggle-knob {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--text-main);
+      color: #0D0D0D;
+      display: grid;
+      place-items: center;
+      transform: translateX(0);
+      transition: var(--transition);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    [data-theme="light"] .toggle-knob { transform: translateX(26px); background: #111827; color: #FFFFFF; }
+
+    /* --- Main Content --- */
+    .main-content {
+      flex: 1;
+      padding: 2rem 2.5rem;
+      overflow-y: auto;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255,106,0,0.07) 0%, transparent 24%),
+        radial-gradient(circle at 90% 0%, rgba(255,106,0,0.04) 0%, transparent 30%),
+        var(--bg-main);
+      transition: var(--transition);
+    }
+
+    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
+    .view-title-group h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 0.25rem; }
+    .view-title-group p { color: var(--text-secondary); }
+
+    .actions-group { display: flex; gap: 0.75rem; }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid transparent;
+      display: flex; align-items: center; gap: 0.5rem;
+      font-family: inherit;
+    }
+    .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid #3A3A3A; }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: rgba(255,106,0,0.08); transform: translateY(-2px); }
+    [data-theme="light"] .btn-outline { background: #F3F4F6; border-color: #D1D5DB; color: var(--text-secondary); }
+    [data-theme="light"] .btn-outline:hover { background: #E5E7EB; color: var(--text-main); border-color: #C7CDD5; }
+    .btn-primary { background: var(--primary); color: white; box-shadow: var(--shadow-button); }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 8px 24px var(--primary-glow-strong); }
+    .btn:active { transform: scale(0.96); }
+    .btn-danger { background: rgba(244, 63, 94, 0.1); color: var(--danger); }
+    .btn-danger:hover { background: var(--danger); color: white; }
+    .btn[disabled] { opacity: 0.7; cursor: wait; }
+
+    .content-grid { display: grid; grid-template-columns: 3fr 2fr; gap: 2rem; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      transition: var(--transition);
+      box-shadow: var(--shadow-card);
+    }
+    .card:hover { transform: scale(1.01); box-shadow: 0 14px 34px rgba(0,0,0,0.48); }
+    [data-theme="light"] .card:hover { box-shadow: 0 8px 24px rgba(17,24,39,0.12); }
+    
+    .card-title { font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem; }
+    
+    .resource-list { display: flex; flex-direction: column; gap: 1rem; }
+    .resource-item {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem;
+      border-radius: 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      transition: var(--transition);
+    }
+    .resource-item:hover { border-color: rgba(255,106,0,0.35); }
+    .res-status-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .res-path { flex: 1; font-family: monospace; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; }
+    .res-delay { font-size: 0.75rem; font-weight: 600; color: var(--warning); background: rgba(245, 158, 11, 0.1); padding: 4px 8px; border-radius: 6px; }
+
+    .notes-box { font-size: 1.02rem; line-height: 1.7; color: var(--text-main); white-space: pre-wrap; opacity: 0.9; }
+
+    /* Form Styles */
+    .form-panel { max-width: 800px; margin: 0 auto; }
+    .field { margin-bottom: 1.5rem; }
+    .field label { display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 0.6rem; }
+    input, textarea {
+      width: 100%;
+      background: #121212;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      color: var(--text-main);
+      font-size: 1rem;
+      font-family: inherit;
+      transition: var(--transition);
+    }
+    [data-theme="light"] input,
+    [data-theme="light"] textarea { background: #FFFFFF; border-color: #D1D5DB; }
+    input::placeholder, textarea::placeholder { color: #777; }
+    input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow-soft); }
+
+    .hidden { display: none !important; }
+    .empty-screen {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 3rem;
+      box-shadow: var(--shadow-card);
+    }
+    .empty-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: var(--primary-gradient);
+      margin-bottom: 1.2rem;
+      box-shadow: var(--shadow-button);
+    }
+
+    .deploy-notif {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--surface);
+      border: 1px solid var(--success);
+      color: var(--success);
+      padding: 1rem 2rem;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      transform: translateY(100px);
+      transition: var(--transition);
+      z-index: 1000;
+      font-weight: 600;
+    }
+    .deploy-notif.show { transform: translateY(0); }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .skeleton {
+      background: linear-gradient(90deg, rgba(120,120,120,0.15) 25%, rgba(120,120,120,0.28) 37%, rgba(120,120,120,0.15) 63%);
+      background-size: 400% 100%;
+      animation: shimmer 1.2s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
+    }
+
+    @media (max-width: 1180px) {
+      .sidebar { width: 250px; }
+      .main-content { padding: 1.5rem; }
+      .content-grid { grid-template-columns: 1fr; }
+      .view-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 7.5C6 6.12 7.12 5 8.5 5H15.5C16.88 5 18 6.12 18 7.5C18 8.88 16.88 10 15.5 10H10.5C9.12 10 8 11.12 8 12.5C8 13.88 9.12 15 10.5 15H17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M18 16.5C18 17.88 16.88 19 15.5 19H8.5C7.12 19 6 17.88 6 16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brand-name">SnapFlow</div>
+      </div>
+
+      <div class="health-section">
+        <div class="health-label"><span class="status-dot"></span> System Engine</div>
+        <div class="cpu-bar"><div id="cpu-fill" class="cpu-fill"></div></div>
+        <div id="cpu-val" class="cpu-val">0.0%</div>
+      </div>
+
+      <button id="btn-create" class="btn btn-primary" style="width: 100%; margin-bottom: 2rem;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        New Project
+      </button>
+      
+      <div class="nav-title">Navigation</div>
+      <div class="workspace-list" style="flex: 0; margin-bottom: 1.5rem;">
+        <a href="index.html" class="ws-btn" style="text-decoration: none;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Home
+        </a>
+        <a href="about.html" class="ws-btn" style="text-decoration: none;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          About Us
+        </a>
+      </div>
+
+      <div class="nav-title">My Workspaces</div>
+      <div id="workspace-list" class="workspace-list">
+        <!-- JS -->
+      </div>
+
+      <div class="sidebar-footer" style="gap: 12px;">
+        <button id="home-btn" class="btn btn-outline" style="padding: 6px 14px; font-size: 0.8rem; border-radius: 999px;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Home
+        </button>
+        <button id="theme-btn" class="theme-toggle" title="Toggle Theme">
+          <span id="toggle-knob" class="toggle-knob">
+            <svg id="sun-icon" class="hidden" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <svg id="moon-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          </span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+      <div id="empty-state" class="empty-screen">
+        <div class="empty-icon">
+          <svg width="30" height="30" fill="none" stroke="#FFFFFF" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h2 style="font-size: 2rem;">Ready to Snap?</h2>
+        <p style="color: var(--text-secondary); margin-top: 0.5rem;">Choose a workspace to review resources and deploy your flow.</p>
+      </div>
+
+      <!-- Detail View -->
+      <div id="view-panel" class="hidden">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h1 id="v-title">Workspace Name</h1>
+            <p>Ready for instant deployment</p>
+          </div>
+          <div class="actions-group">
+            <button id="btn-edit" class="btn btn-outline">Edit</button>
+            <button id="btn-delete" class="btn btn-danger">Delete</button>
+            <button id="btn-deploy" class="btn btn-primary">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+              Deploy Flow
+            </button>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <section class="card">
+            <div class="card-title">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              Assigned Resources
+            </div>
+            <div id="v-items" class="resource-list"></div>
+          </section>
+          <section class="card">
+            <div class="card-title">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              Internal Notes
+            </div>
+            <div id="v-notes" class="notes-box"></div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Editor Panel -->
+      <div id="editor-panel" class="hidden form-panel">
+        <div class="view-header">
+          <div class="view-title-group">
+            <h1 id="e-header">New Project</h1>
+            <p>Setup your automation links and folders</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="field">
+            <label>Snap Title</label>
+            <input type="text" id="f-title" placeholder="Project name...">
+          </div>
+          <div class="field">
+            <label>Project Notes</label>
+            <textarea id="f-notes" rows="3" placeholder="Describe this flow..."></textarea>
+          </div>
+          <div class="field">
+            <label>Shortcuts & Delays <span style="font-size: 0.65rem; opacity: 0.6;">(Path | Delay in ms)</span></label>
+            <textarea id="f-items" rows="6" placeholder="https://example.com | 0&#10;C:\Users\Documents | 1000"></textarea>
+          </div>
+          <div class="actions-group" style="justify-content: flex-end; margin-top: 1rem;">
+            <button id="btn-cancel" class="btn btn-outline">Cancel</button>
+            <button id="btn-save" class="btn btn-primary">Save Project</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="notif" class="deploy-notif">Flow deployed successfully</div>
+
+  <script>
+    const API = '/api';
+    let workspaces = [];
+    let currentId = null;
+
+    // --- Theme Logic ---
+    const themeBtn = document.getElementById('theme-btn');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+    
+    const setTheme = (theme) => {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('snapflow-theme', theme);
+      if (theme === 'light') {
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+      } else {
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      }
+    };
+
+    themeBtn.onclick = () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    };
+
+    const savedTheme = localStorage.getItem('snapflow-theme') || 'light';
+    setTheme(savedTheme);
+
+    document.getElementById('home-btn').onclick = () => {
+      window.location.href = 'index.html';
+    };
+
+    const loadWorkspaces = async () => {
+      const r = await fetch(API + '/workspaces');
+      workspaces = await r.json();
+      const list = document.getElementById('workspace-list');
+      list.innerHTML = workspaces.map(w => `
+        <div class="ws-btn ${w.id === currentId ? 'active' : ''}" onclick="viewWorkspace('${w.id}')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+          ${w.title || 'Untitled'}
+        </div>
+      `).join('');
+    };
+
+    const viewWorkspace = (id, refreshOnly = false) => {
+      currentId = id;
+      const w = workspaces.find(x => x.id === id);
+      if (!w) return;
+
+      document.getElementById('v-title').textContent = w.title || 'Untitled';
+      document.getElementById('v-notes').textContent = w.notes || 'No notes added for this project.';
+      document.getElementById('v-items').innerHTML = w.items.map(i => `
+        <div class="resource-item">
+          <div class="res-status-dot" style="background: ${getStatusColor(i.status)};"></div>
+          <div class="res-path">${i.path}</div>
+          ${i.delay > 0 ? `<div class="res-delay">${i.delay}ms</div>` : ''}
+        </div>
+      `).join('');
+
+      if (!refreshOnly) {
+        showPanel('view-panel');
+      }
+      loadWorkspaces();
+    };
+
+    const getStatusColor = (s) => {
+      if (s === 'online' || s === 'ready') return 'var(--success)';
+      if (s === 'offline' || s === 'missing') return 'var(--danger)';
+      return 'var(--text-muted)';
+    };
+
+    const showPanel = (n) => {
+      ['empty-state', 'view-panel', 'editor-panel'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById(n).classList.remove('hidden');
+    };
+
+    const openEditor = (id = null) => {
+      const w = id ? workspaces.find(x => x.id === id) : null;
+      currentId = id;
+      document.getElementById('e-header').textContent = w ? 'Edit Project' : 'New Project';
+      document.getElementById('f-title').value = w ? w.title : '';
+      document.getElementById('f-notes').value = w ? w.notes : '';
+      document.getElementById('f-items').value = w ? w.items.map(i => `${i.path} | ${i.delay}`).join('\n') : '';
+      showPanel('editor-panel');
+    };
+
+    const saveWorkspace = async () => {
+      const title = document.getElementById('f-title').value.trim();
+      if (!title) return alert('Snap title is required');
+
+      const items = document.getElementById('f-items').value.split('\n').filter(Boolean).map(line => {
+        const parts = line.split('|');
+        return { path: parts[0].trim(), delay: parseInt(parts[1]?.trim() || '0') };
+      });
+
+      const res = await fetch(currentId ? API + '/workspaces/' + currentId : API + '/workspaces', {
+        method: currentId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: currentId, title, notes: document.getElementById('f-notes').value, items })
+      });
+      const saved = await res.json();
+      currentId = saved.id;
+      await loadWorkspaces();
+      viewWorkspace(saved.id);
+    };
+
+    document.getElementById('btn-create').onclick = () => openEditor();
+    document.getElementById('btn-save').onclick = saveWorkspace;
+    document.getElementById('btn-cancel').onclick = () => currentId ? viewWorkspace(currentId) : showPanel('empty-state');
+    document.getElementById('btn-edit').onclick = () => openEditor(currentId);
+    document.getElementById('btn-delete').onclick = async () => {
+      if (!confirm('Permanent delete this project?')) return;
+      await fetch(API + '/workspaces/' + currentId, { method: 'DELETE' });
+      currentId = null; await loadWorkspaces(); showPanel('empty-state');
+    };
+
+    document.getElementById('btn-deploy').onclick = async () => {
+      const btn = document.getElementById('btn-deploy');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Deploying...';
+      const r = await fetch(API + '/workspaces/' + currentId + '/deploy', { method: 'POST' });
+      const d = await r.json();
+      
+      const notif = document.getElementById('notif');
+      notif.textContent = d.success ? 'Engine: Flow deployed successfully' : 'Engine: Deployment failed';
+      notif.classList.add('show');
+      setTimeout(() => notif.classList.remove('show'), 4000);
+      
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>Deploy Flow';
+    };
+
+    // --- Background Updates ---
+    const updateHealth = async () => {
+      try {
+        const r = await fetch(API + '/health');
+        const h = await r.json();
+        document.getElementById('cpu-val').textContent = h.cpuLoadPercent;
+        document.getElementById('cpu-fill').style.width = h.cpuLoadPercent;
+      } catch {}
+    };
+    setInterval(updateHealth, 3000);
+    setInterval(async () => {
+      if (currentId && !document.getElementById('view-panel').classList.contains('hidden')) {
+        await loadWorkspaces();
+        viewWorkspace(currentId, true);
+      }
+    }, 5000);
+
+    updateHealth();
+    loadWorkspaces();
+  </script>
+</body>
+</html>

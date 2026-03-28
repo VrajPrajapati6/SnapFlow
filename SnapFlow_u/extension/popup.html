@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      width: 280px; font-family: sans-serif; background: #0d0d10; color: #e8e8f0; margin: 0; padding: 15px; border: 1px solid #2a2a35;
+    }
+    .group { margin-bottom: 12px; }
+    .label { font-size: 0.72rem; color: #6b6b80; text-transform: uppercase; font-weight: bold; margin-bottom: 6px; letter-spacing: 0.5px; }
+    input, select {
+      width: 100%; background: #141418; color: #e8e8f0; border: 1px solid #2a2a35; padding: 8px; border-radius: 6px; outline: none; font-family: inherit; font-size: 0.85rem;
+    }
+    input:focus { border-color: #6c63ff; }
+    .row { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+    button {
+      width: 100%; padding: 10px; background: #6c63ff; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.23s; font-family: inherit; margin-top: 5px;
+    }
+    button:hover { background: #5a52e8; transform: translateY(-1px); }
+    button:disabled { background: #2a2a35; color: #6b6b80; cursor: not-allowed; transform: none; }
+    #msg { font-size: 0.75rem; margin-top: 12px; text-align: center; color: #22c55e; min-height: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="group">
+    <div class="label">Choose Existing Snap</div>
+    <select id="ws-select"><option>Loading...</option></select>
+  </div>
+
+  <div class="group">
+    <div class="label">OR New Snap Title</div>
+    <input type="text" id="new-title" placeholder="Enter new title">
+  </div>
+
+  <div class="group">
+    <div class="label">Delay (ms)</div>
+    <input type="number" id="delay-ms" value="0" min="0" step="100">
+  </div>
+
+  <button id="snap-btn" disabled>Snap This Tab</button>
+  <div id="msg"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
