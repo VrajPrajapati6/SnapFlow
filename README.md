@@ -125,35 +125,38 @@ SnapFlow includes a Chrome extension to quickly add current webpages into workfl
 
 ```bash
 mvn spring-boot:run
+```
 
-Open browser: http://localhost:8084
+Open browser: [http://localhost:8084](http://localhost:8084)
 
-🧩 Install Chrome Extension
-Open Google Chrome
+---
 
-Go to:
+## 🧩 Install Chrome Extension
 
-chrome://extensions/
-Enable Developer Mode (top right)
-Click Load unpacked
-Select the extension folder from the project
+1. Open Google Chrome  
+2. Go to: `chrome://extensions/`  
+3. Enable **Developer Mode** (top right)  
+4. Click **Load unpacked**  
+5. Select the **extension** folder from the project  
 
-SnapFlow extension will be ready to use
+✅ SnapFlow extension will be ready to use!
 
-Project Structure
-src/main/java/com/snapflow/controller   → REST APIs  
-src/main/java/com/snapflow/service      → Core logic  
-src/main/java/com/snapflow/model        → Data models  
-src/main/resources/static               → Frontend UI  
-snapshots.json                          → Workflow storage  
+---
 
-🎯Conclusion
+## 📂 Project Structure
+- `src/main/java/com/snapflow/controller`   → REST APIs  
+- `src/main/java/com/snapflow/service`      → Core logic  
+- `src/main/java/com/snapflow/model`        → Data models  
+- `src/main/resources/static`               → Frontend UI  
+- `snapshots.json`                          → Workflow storage  
+
+---
+
+## 🎯 Conclusion
 
 SnapFlow is a simple yet powerful automation tool that eliminates repetitive digital tasks.
 
-It boosts productivity by allowing users to:
-
-Set up their environment once
-Reuse it anytime with one click
+- Set up their environment once
+- Reuse it anytime with one click
 
 With system monitoring and Chrome extension support, SnapFlow becomes a complete and practical automation solution.
