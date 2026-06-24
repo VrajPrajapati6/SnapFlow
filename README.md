@@ -3,7 +3,7 @@
 ### Java-Based Workflow Automation Tool
 
 **Project Title:** SnapFlow  
-**Developer:** Vraj Prajapati, Prince Patel  
+**Developer:** Vraj Prajapati 
 
 ---
 
